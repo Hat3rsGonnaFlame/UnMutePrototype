@@ -5,7 +5,6 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Waveform } from "@/components/UnMuteLogo";
-import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 
 export const Route = createFileRoute("/_authenticated/groups/$groupId")({
@@ -327,5 +326,3 @@ function Recorder({
     </div>
   );
 }
-
-export { Button };
