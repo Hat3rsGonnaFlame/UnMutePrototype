@@ -10,33 +10,76 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedGroupsIndexRouteImport } from './routes/_authenticated.groups.index'
+import { Route as AuthenticatedGroupsGroupIdRouteImport } from './routes/_authenticated.groups.$groupId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedRoute = AuthenticatedRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedGroupsIndexRoute =
+  AuthenticatedGroupsIndexRouteImport.update({
+    id: '/groups/',
+    path: '/groups/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedGroupsGroupIdRoute =
+  AuthenticatedGroupsGroupIdRouteImport.update({
+    id: '/groups/$groupId',
+    path: '/groups/$groupId',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/groups/$groupId': typeof AuthenticatedGroupsGroupIdRoute
+  '/groups/': typeof AuthenticatedGroupsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/groups/$groupId': typeof AuthenticatedGroupsGroupIdRoute
+  '/groups': typeof AuthenticatedGroupsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/_authenticated/groups/$groupId': typeof AuthenticatedGroupsGroupIdRoute
+  '/_authenticated/groups/': typeof AuthenticatedGroupsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/auth' | '/groups/$groupId' | '/groups/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/auth' | '/groups/$groupId' | '/groups'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/auth'
+    | '/_authenticated/groups/$groupId'
+    | '/_authenticated/groups/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
+  AuthRoute: typeof AuthRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +91,55 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/groups/': {
+      id: '/_authenticated/groups/'
+      path: '/groups'
+      fullPath: '/groups/'
+      preLoaderRoute: typeof AuthenticatedGroupsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/groups/$groupId': {
+      id: '/_authenticated/groups/$groupId'
+      path: '/groups/$groupId'
+      fullPath: '/groups/$groupId'
+      preLoaderRoute: typeof AuthenticatedGroupsGroupIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
   }
 }
 
+interface AuthenticatedRouteChildren {
+  AuthenticatedGroupsGroupIdRoute: typeof AuthenticatedGroupsGroupIdRoute
+  AuthenticatedGroupsIndexRoute: typeof AuthenticatedGroupsIndexRoute
+}
+
+const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedGroupsGroupIdRoute: AuthenticatedGroupsGroupIdRoute,
+  AuthenticatedGroupsIndexRoute: AuthenticatedGroupsIndexRoute,
+}
+
+const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
+  AuthenticatedRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRoute: AuthenticatedRouteWithChildren,
+  AuthRoute: AuthRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
