@@ -20,7 +20,7 @@ export function Waveform({ active = false, bars = 24 }: { active?: boolean; bars
           key={i}
           className={`w-[3px] rounded-full bg-primary/70 ${active ? "wave-bar" : ""}`}
           style={{
-            height: `${20 + Math.abs(Math.sin(i * 1.7)) * 70}%`,
+            height: `${(20 + Math.abs(Math.sin(i * 1.7)) * 70).toFixed(1)}%`,
             animationDelay: `${(i % 8) * 0.09}s`,
           }}
         />
