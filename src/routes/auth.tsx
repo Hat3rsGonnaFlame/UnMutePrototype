@@ -41,7 +41,7 @@ function AuthPage() {
     setBusy(true);
     try {
       if (mode === "signup") {
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -50,7 +50,11 @@ function AuthPage() {
           },
         });
         if (error) throw error;
-        toast.success("Konto erstellt – willkommen bei UnMute!");
+        if (data.session) {
+          toast.success("Konto erstellt – willkommen bei UnMute!");
+        } else {
+          toast.success("Fast geschafft: bestätige kurz deine E-Mail-Adresse.");
+        }
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
