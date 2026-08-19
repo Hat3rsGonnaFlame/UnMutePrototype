@@ -2,6 +2,7 @@ import { Outlet, createFileRoute, useNavigate, Link } from "@tanstack/react-rout
 import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { UnMuteLogo } from "@/components/UnMuteLogo";
 import { Button } from "@/components/ui/button";
 
@@ -31,20 +32,33 @@ function AuthenticatedLayout() {
         <Link to="/groups">
           <UnMuteLogo />
         </Link>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={async () => {
-            await supabase.auth.signOut();
-            navigate({ to: "/" });
-          }}
-        >
-          Abmelden
-        </Button>
+        <div className="flex items-center gap-1">
+          <AdminLink />
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={async () => {
+              await supabase.auth.signOut();
+              navigate({ to: "/" });
+            }}
+          >
+            Abmelden
+          </Button>
+        </div>
       </header>
       <main className="mx-auto max-w-3xl px-6 pb-24">
         <Outlet />
       </main>
     </div>
+  );
+}
+
+function AdminLink() {
+  const { isAdmin } = useIsAdmin();
+  if (!isAdmin) return null;
+  return (
+    <Button variant="ghost" size="sm" asChild>
+      <Link to="/admin/prompts">Fragen-Sets</Link>
+    </Button>
   );
 }
