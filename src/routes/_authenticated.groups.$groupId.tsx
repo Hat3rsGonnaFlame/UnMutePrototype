@@ -38,7 +38,7 @@ function GroupPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("groups")
-        .select("id, name, topic, invite_code")
+        .select("id, name, topic, invite_code, created_by, prompt_set_id")
         .eq("id", groupId)
         .single();
       if (error) throw error;
@@ -46,13 +46,46 @@ function GroupPage() {
     },
   });
 
-  const prompts = useQuery({
-    queryKey: ["prompts"],
+  const sets = useQuery({
+    queryKey: ["prompt-sets-active"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("prompts").select("id, question");
+      const { data, error } = await supabase
+        .from("prompt_sets")
+        .select("id, name, emoji")
+        .eq("is_active", true)
+        .order("sort_order");
       if (error) throw error;
       return data ?? [];
     },
+  });
+
+  const setId = group.data?.prompt_set_id ?? null;
+
+  const prompts = useQuery({
+    queryKey: ["prompts", setId],
+    enabled: group.isSuccess,
+    queryFn: async () => {
+      let q = supabase.from("prompts").select("id, question").eq("is_active", true);
+      q = setId ? q.eq("set_id", setId) : q;
+      const { data, error } = await q.order("position");
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
+  const changeSet = useMutation({
+    mutationFn: async (newSetId: string) => {
+      const { error } = await supabase
+        .from("groups")
+        .update({ prompt_set_id: newSetId })
+        .eq("id", groupId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Fragen-Set geändert");
+      qc.invalidateQueries({ queryKey: ["group", groupId] });
+    },
+    onError: () => toast.error("Nur die Gruppen-Gründung kann das Set ändern."),
   });
 
   const notes = useQuery({
