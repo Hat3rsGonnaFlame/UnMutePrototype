@@ -2,6 +2,7 @@ import { Outlet, createFileRoute, useNavigate, Link } from "@tanstack/react-rout
 import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { UnMuteLogo } from "@/components/UnMuteLogo";
 import { Button } from "@/components/ui/button";
 
@@ -49,5 +50,15 @@ function AuthenticatedLayout() {
         <Outlet />
       </main>
     </div>
+  );
+}
+
+function AdminLink() {
+  const { isAdmin } = useIsAdmin();
+  if (!isAdmin) return null;
+  return (
+    <Button variant="ghost" size="sm" asChild>
+      <Link to="/admin/prompts">Fragen-Sets</Link>
+    </Button>
   );
 }
