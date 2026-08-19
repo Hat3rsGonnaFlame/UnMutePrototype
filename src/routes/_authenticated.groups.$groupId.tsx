@@ -161,7 +161,24 @@ function GroupPage() {
       </div>
 
       <section className="surface-card p-7">
-        <p className="text-xs font-medium tracking-[0.2em] text-primary uppercase">Impuls des Tages</p>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <p className="text-xs font-medium tracking-[0.2em] text-primary uppercase">Impuls des Tages</p>
+          {group.data?.created_by === user?.id && (
+            <select
+              value={setId ?? ""}
+              onChange={(e) => changeSet.mutate(e.target.value)}
+              aria-label="Fragen-Set"
+              className="rounded-full border border-border bg-transparent px-3 py-1 text-xs text-muted-foreground"
+            >
+              {sets.data?.map((s) => (
+                <option key={s.id} value={s.id} className="bg-background">
+                  {s.emoji ? `${s.emoji} ` : ""}
+                  {s.name}
+                </option>
+              ))}
+            </select>
+          )}
+        </div>
         <h2 className="mt-3 text-2xl leading-snug font-semibold">
           {prompt?.question ?? "Lade Impuls …"}
         </h2>
