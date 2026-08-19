@@ -31,16 +31,19 @@ function AuthenticatedLayout() {
         <Link to="/groups">
           <UnMuteLogo />
         </Link>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={async () => {
-            await supabase.auth.signOut();
-            navigate({ to: "/" });
-          }}
-        >
-          Abmelden
-        </Button>
+        <div className="flex items-center gap-1">
+          <AdminLink />
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={async () => {
+              await supabase.auth.signOut();
+              navigate({ to: "/" });
+            }}
+          >
+            Abmelden
+          </Button>
+        </div>
       </header>
       <main className="mx-auto max-w-3xl px-6 pb-24">
         <Outlet />
