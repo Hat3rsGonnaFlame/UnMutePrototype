@@ -32,17 +32,25 @@ const steps = [
 ];
 
 function Landing() {
-  const { session, loading } = useAuth();
+  const { session, loading, configError } = useAuth();
   const target = session ? "/groups" : "/auth";
 
   return (
     <div className="min-h-screen">
+      {configError ? (
+        <div className="border-b border-destructive/40 bg-destructive/10 px-6 py-3 text-center text-sm text-destructive-foreground">
+          Backend nicht konfiguriert: Bitte die Umgebungsvariablen{" "}
+          <code>VITE_SUPABASE_URL</code> und <code>VITE_SUPABASE_PUBLISHABLE_KEY</code> im Hosting
+          setzen und neu deployen.
+        </div>
+      ) : null}
       <header className="mx-auto flex max-w-5xl items-center justify-between px-6 py-6">
         <UnMuteLogo />
         <Button asChild variant="ghost" size="sm" disabled={loading}>
           <Link to={target}>{session ? "Zu meinen Gruppen" : "Anmelden"}</Link>
         </Button>
       </header>
+
 
       <main className="mx-auto max-w-5xl px-6 pb-24">
         <section className="pt-10 pb-20 sm:pt-20">
